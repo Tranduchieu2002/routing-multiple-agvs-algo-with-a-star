@@ -1,13 +1,15 @@
 import heapq
-
-from cell import Cell
+from typing import List
+from boardCenter import board
+from boardCenter import generateBoard
+from Cell import Cell
 
 def is_valid(row, col, ROW, COL):
     return 0 <= row < ROW and 0 <= col < COL
 
 # Check if a cell is unblocked
-def is_unblocked(grid, row, col):
-    return grid[row][col] == 1
+def is_unblocked(grid: List[List[Cell]], row: int, col: int):
+    return grid[row][col].status == 1
 
 # Check if a cell is the destination
 def is_destination(row, col, dest):
@@ -61,7 +63,7 @@ def trace_path(cell_details, dest):
     return path
 
 
-def a_star_search(grid, src, dest):
+def a_star_search(grid: List[List[Cell]], src, dest):
     ROW = len(grid)
     COL = len(grid[0])
     # Check if the source and destination are valid
@@ -143,3 +145,13 @@ def a_star_search(grid, src, dest):
     return None
     # If the destination is not found after visiting all cells
     print("Failed to find the destination cell")
+
+# Test the A* search algorithm
+
+# Define the grid
+grid = generateBoard(90) 
+
+import time
+start_time = time.time()
+a_star_search(grid, (63, 0), (0, 0))
+print("--- %s seconds ---" % (time.time() - start_time))

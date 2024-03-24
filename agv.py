@@ -2,7 +2,6 @@ from AStar import a_star_search
 
 
 class AGV:
-
   def __init__(self, board, start, destination):
     self.start = start
     self.destination = destination

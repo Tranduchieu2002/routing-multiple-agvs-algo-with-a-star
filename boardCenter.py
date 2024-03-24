@@ -6,10 +6,10 @@
 # Path: board-center.py
 from typing import List
 from random import randint
-from cell import Cell
+from Cell import Cell
 
 
-board: List[List[int]] = [
+grid = [
   [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
   [1, 1, 1, 0, 1, 1, 1, 0, 0, 1],
   [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
@@ -20,12 +20,26 @@ board: List[List[int]] = [
   [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 0, 0, 0, 1, 0, 0, 1]
 ]
+def generate_from_grid(grid):
+    board = []
+    for row in grid:
+        temp_row = []
+        for val in row:
+            cell = Cell(val)
+            temp_row.append(cell)
+        board.append(temp_row)
+    return board
+      
+board: List[List[Cell]] = generate_from_grid(grid= grid)
 
+print(board)
 def generateBoard(size): 
   
   board: List[List[Cell]] = [[0 for _ in range(size)] for _ in range(size)]
   for i in range(size):
     for j in range(size):
       randomStatus = randint(0, 3)
-      board[i][j] = randomStatus
+      cell = Cell()
+      cell.status = randomStatus
+      board[i][j] = cell
   return board

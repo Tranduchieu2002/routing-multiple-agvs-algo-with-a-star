@@ -4,7 +4,7 @@ import pprint
 import pygame
 import sys
 
-from cell import Cell
+from Cell import Cell
 # destination = Điểm đến
 # Define the size of the grid
 ROW = 9
@@ -154,7 +154,7 @@ def a_star_search(grid, src, dest):
                         pygame.draw.rect(screen, GREEN, pygame.Rect(col * 50, row * 50, 50, 50))
                         pygame.display.flip()
                         pygame.time.delay(500)  # Delay for visualization
-                    pygame.quit()
+                    # pygame.quit()
                     # sys.exit()
                     return path
                 else:
@@ -176,11 +176,11 @@ def a_star_search(grid, src, dest):
 
     # If the destination is not found after visiting all cells
     print("Failed to find the destination cell")
-    pygame.quit()
+    # pygame.quit()
 
 def main():
     # Define the grid (1 for unblocked, 0 for blocked)
-    queue = [[8,0],[8, 9]]
+    queue = [[8,0]]
     grid = [
         [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
         [1, 1, 1, 0, 1, 1, 1, 0, 0, 1],
@@ -199,6 +199,7 @@ def main():
     while queue: 
         src = queue.pop(0)
         paths.append(a_star_search(grid, src, dest))
+        print(f'Số đường đi từ {src} -> đến {dest} : {len(paths[0])}')
     pprint.pprint(paths)
 
 if __name__ == "__main__":
