@@ -3,6 +3,8 @@ import heapq
 import pprint
 import pygame
 import sys
+
+from cell import Cell
 # destination = Điểm đến
 # Define the size of the grid
 ROW = 9
@@ -17,13 +19,6 @@ BLUE = (0, 0, 255)
 ORANGE = (255, 165, 0)
 
 # Define the Cell class
-class Cell:
-    def __init__(self):
-        self.parent_i = 0  # Parent cell's row index
-        self.parent_j = 0  # Parent cell's column index
-        self.f = float('inf')  # Total cost of the cell (g + h)
-        self.g = float('inf')  # Cost from start to this cell
-        self.h = 0  # Heuristic cost from this cell to destination
 
 # Check if a cell is valid (within the grid)
 def is_valid(row, col):

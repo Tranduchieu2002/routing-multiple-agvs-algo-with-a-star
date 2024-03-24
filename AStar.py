@@ -1,5 +1,45 @@
 import heapq
 
+from cell import Cell
+
+def is_valid(row, col, ROW, COL):
+    return 0 <= row < ROW and 0 <= col < COL
+
+# Check if a cell is unblocked
+def is_unblocked(grid, row, col):
+    return grid[row][col] == 1
+
+# Check if a cell is the destination
+def is_destination(row, col, dest):
+    return row == dest[0] and col == dest[1]
+
+# Calculate the heuristic value of a cell (Euclidean distance to destination)
+def calculate_h_value(row, col, dest):
+  row_diff = abs(row - dest[0])
+  col_diff = abs(col - dest[1])
+  return row_diff + col_diff
+
+# Trace the path from source to destination
+def trace_path(cell_details, dest):
+    path = []
+    row = dest[0]
+    col = dest[1]
+
+    # Trace the path from destination to source using parent cells
+    while not (cell_details[row][col].parent_i == row and cell_details[row][col].parent_j == col):
+        path.append((row, col))
+        temp_row = cell_details[row][col].parent_i
+        temp_col = cell_details[row][col].parent_j
+        row = temp_row
+        col = temp_col
+
+    # Add the source cell to the path
+    path.append((row, col))
+    # Reverse the path to get the path from source to destination
+    path.reverse()
+
+    return path
+
 def trace_path(cell_details, dest):
     path = []
     row = dest[0]
@@ -22,8 +62,10 @@ def trace_path(cell_details, dest):
 
 
 def a_star_search(grid, src, dest):
-  
-    if not is_valid(src[0], src[1]) or not is_valid(dest[0], dest[1]):
+    ROW = len(grid)
+    COL = len(grid[0])
+    # Check if the source and destination are valid
+    if not is_valid(src[0], src[1], ROW= ROW, COL= COL) or not is_valid(dest[0], dest[1], ROW= ROW, COL= COL):
         print("Source or destination is invalid")
         return
 
@@ -71,7 +113,7 @@ def a_star_search(grid, src, dest):
             new_j = j + dir[1]
 
             # If the successor is valid, unblocked, and not visited
-            if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
+            if is_valid(new_i, new_j, ROW, COL) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
                 # If the successor is the destination
                 if is_destination(new_i, new_j, dest):
                     # Set the parent of the destination cell
