@@ -3,10 +3,12 @@ from AStar import a_star_search
 
 class AGV:
   def __init__(self, board, start, destination):
-    self.start = start
-    self.destination = destination
-    self.final_destination = destination
-    self.path = self.find_shortest_path(board, start, destination)
+    self.start: list[int] = start
+    self.id = 0
+    self.position: list[int] = start
+    self.destination: list[int] = destination
+    self.final_destination: list[int] = destination
+    self.path = []
     print("path:: ", self.path)
     if (self.path is None):
         Exception("No path found")
@@ -16,7 +18,8 @@ class AGV:
     # Implement A* algorithm here to find the shortest path
     # Return the path as a list of points
     return a_star_search(board, start, destination)
-      
+  def is_done(self):
+    return self.position == self.final_destination
   def update(self):
     # Move the AGV along its path
     if self.path:

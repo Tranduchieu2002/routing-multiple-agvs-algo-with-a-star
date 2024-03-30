@@ -142,9 +142,9 @@ def a_star_search(grid: List[List[Cell]], src, dest):
                         cell_details[new_i][new_j].parent_i = i
                         cell_details[new_i][new_j].parent_j = j
 
+    print("Failed to find the destination cell")
     return None
     # If the destination is not found after visiting all cells
-    print("Failed to find the destination cell")
 
 # Test the A* search algorithm
 
