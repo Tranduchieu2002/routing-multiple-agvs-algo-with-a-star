@@ -43,7 +43,7 @@ class SupervisorCenter:
         self.stores = [[0, 0], [self.ROW - 1, 0]]
         for store in self.stores:
             self.grid[store[0]][store[1]].status = 1
-        self.depots = [[0, self.COL // 2], [self.ROW - 1, self.COL // 2]]
+        self.depots = [[(self.ROW) // 2, 0], [(self.ROW - 1) // 2, self.COL - 1]]
         for depot in self.depots:
             self.grid[depot[0]][depot[1]].status = 1
 
@@ -74,10 +74,17 @@ class SupervisorCenter:
     def move(self, agv: AGV):
         path = agv.path
         (x, y) = agv.position
-        print(x, y)
-        # check conflicts in total Agvs
+        # TODO: check conflicts in total AGV
         # for _ in range(BASE):
             # if self.grid[]
+        if not path:
+          isDepot = [x, y] in self.depots
+          isStore = [x, y] in self.stores
+          print('isDepot: ', isDepot, isStore, self.depots, agv.position)
+          if isDepot:
+              self.findShortestInMultiRoutes(agv, self.stores)
+          if isStore:
+              self.findShortestInMultiRoutes(agv, self.stations)
         self.checkConflict()
         self.grid[x][y].agv = None  # remove the AGV from the current cell
         if path:
@@ -108,7 +115,6 @@ class SupervisorCenter:
     def draw_AGVs(self):
         for agv in self.AGVs:
             x, y = agv.position
-            
             pygame.draw.rect(self.screen, (255, 0, 0), (y * self.cell_size, x * self.cell_size, self.cell_size, self.cell_size))
 
     def start(self):
