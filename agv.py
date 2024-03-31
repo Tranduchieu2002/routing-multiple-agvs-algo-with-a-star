@@ -5,6 +5,7 @@ class AGV:
   def __init__(self, board, start, destination):
     self.start: list[int] = start
     self.id = 0
+    self.stop = 0
     self.position: list[int] = start
     self.destination: list[int] = destination
     self.final_destination: list[int] = destination

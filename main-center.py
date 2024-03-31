@@ -8,6 +8,13 @@ from Cell import Cell  # Importing the AGV class
 INF = 1000000000
 BASE = 3
 
+data = [{
+    "station": 0,
+}, {
+    "station": 1,
+}, {
+    "station": 0,
+}]
 class SupervisorCenter:
     def __init__(self):
         self.stations = []
@@ -37,10 +44,10 @@ class SupervisorCenter:
             print()
 
     def initObjects(self):
-        self.stations = [[0, self.COL - 1],[self.ROW - 1, self.COL - 1]]
+        self.stations = [[self.ROW - 1, 0],[self.ROW - 1, self.COL - 1]]
         for station in self.stations:
             self.grid[station[0]][station[1]].status = 1
-        self.stores = [[0, 0], [self.ROW - 1, 0]]
+        self.stores = [[0, 0], [0, (self.COL - 1)]]
         for store in self.stores:
             self.grid[store[0]][store[1]].status = 1
         self.depots = [[(self.ROW) // 2, 0], [(self.ROW - 1) // 2, self.COL - 1]]
@@ -83,8 +90,12 @@ class SupervisorCenter:
           print('isDepot: ', isDepot, isStore, self.depots, agv.position)
           if isDepot:
               self.findShortestInMultiRoutes(agv, self.stores)
+              if agv.path == None:
+                  return
           if isStore:
               self.findShortestInMultiRoutes(agv, self.stations)
+              if agv.path == None:
+                  return
         self.checkConflict()
         self.grid[x][y].agv = None  # remove the AGV from the current cell
         if path:
@@ -116,22 +127,33 @@ class SupervisorCenter:
         for agv in self.AGVs:
             x, y = agv.position
             pygame.draw.rect(self.screen, (255, 0, 0), (y * self.cell_size, x * self.cell_size, self.cell_size, self.cell_size))
-
+    def initAGVs(self):
+        print("Init AGVs", data)
+        stops = defaultdict(int)
+        for i in range(len(data)):
+            station = data[i]["station"]
+            agv = AGV(self.grid, self.stations[station], self.stores[station])
+            if stops[station]:
+                agv.stop = 3
+            stops[station] += 3
+            agv.stop = stops.get(station, 0)
+            self.AGVs.append(agv)
+            
     def start(self):
         print("Starting the Supervisor Center")
         self.initObjects()
         pygame.init()
+        self.initAGVs()
         self.screen.fill((255, 255, 255))  # Fill screen with white
         self.draw_grid()  # Draw grid lines
         pygame.display.flip()  # Update the display
         self.clock.tick(60)  # Cap the frame rate to 60 FPS
-        self.AGVs.append(AGV(self.grid, [8,0],[0,0]))
         for i in range(len(self.AGVs)):
           agv = self.AGVs[i]
           agv.id = i
           self.findShortestInMultiRoutes(agv, self.depots)
           print("Founded Path", agv.path)
-        print(self.AGVs)
+        print("AGVS::", self.AGVs)
         running = True
         counter = 0
         listDone = [False for _ in range(len(self.AGVs))]
@@ -140,6 +162,9 @@ class SupervisorCenter:
                 if event.type == pygame.QUIT:
                     running = False
             for agv in self.AGVs:
+                if (agv.stop > 0):
+                    agv.stop -= 1
+                    continue
                 self.move(agv)
                 if agv.is_done():
                     listDone[agv.id] = True
