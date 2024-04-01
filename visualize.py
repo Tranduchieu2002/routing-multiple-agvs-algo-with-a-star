@@ -56,19 +56,8 @@ class SupervisorCenter():
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
     def draw_control(self):
         pass
-    # def draw_player():
-    # # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
-    #   if direction == 0:
-    #       screen.blit(player_images[counter // 5], (player_x, player_y))
-    #   elif direction == 1:
-    #       screen.blit(pygame.transform.flip(player_images[counter // 5], True, False), (player_x, player_y))
-    #   elif direction == 2:
-    #       screen.blit(pygame.transform.rotate(player_images[counter // 5], 90), (player_x, player_y))
-    #   elif direction == 3:
-    #       screen.blit(pygame.transform.rotate(player_images[counter // 5], 270), (player_x, player_y))
     def draw_board(self, screen):
         n1,n2 = (self.screen_height - 30) // self.ROW,self.screen_width // self.COL
-        print(n1,n2)
         for i in range(len(self.grid)):
             for j in range(len(self.grid[0])):
                 if board[i][j] == 1:
@@ -78,26 +67,7 @@ class SupervisorCenter():
                 if board[i][j] == 3:
                     pygame.draw.line(screen, BLUE, (j * n2 + (0.5 * n2), i * n1),
                                     (j * n2 + (0.5 * n2), i * n1 + n1), 3)
-                    
-                if board[i][j] == 4:
-                    pygame.draw.line(screen, BLUE, (j * n2, i * n1 + (0.5 * n1)),
-                                    (j * n2 + n2, i * n1 + (0.5 * n1)), 3)
-                if board[i][j] == 5:
-                    pygame.draw.arc(screen, BLUE, [(j * n2 - (n2 * 0.4)) - 2, (i * n1 + (0.5 * n1)), n2, n1],
-                                    0, PI / 2, 3)
-                if board[i][j] == 6:
-                    pygame.draw.arc(screen, BLUE,
-                                    [(j * n2 + (n2 * 0.5)), (i * n1 + (0.5 * n1)), n2, n1], PI / 2, PI, 3)
-                if board[i][j] == 7:
-                    pygame.draw.arc(screen, BLUE, [(j * n2 + (n2 * 0.5)), (i * n1 - (0.4 * n1)), n2, n1], PI,
-                                    3 * PI / 2, 3)    
-                if board[i][j] == 8:
-                  pygame.draw.arc(screen, BLUE,
-                                    [(j * n2 - (n2 * 0.4)) - 2, (i * n1 - (0.4 * n1)), n2, n1], 3 * PI / 2,
-                                    2 * PI, 3)
-                if board[i][j] == 9:
-                    pygame.draw.line(screen, 'white', (j * n2, i * n1 + (0.5 * n1)),
-                                    (j * n2 + n2, i * n1 + (0.5 * n1)), 3)
+                
     def trigger(self):
       pass
     def start(self):

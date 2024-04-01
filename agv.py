@@ -8,8 +8,13 @@ class AGV:
     self.stop = 0
     self.position: list[int] = start
     self.destination: list[int] = destination
+    self.color = (255,100,150)
     self.final_destination: list[int] = destination
     self.path = []
+    self.status:int= 0 # 
+    self.isStart = True
+    self.isFinished = False
+    self.isVisited = set()
     print("path:: ", self.path)
     if (self.path is None):
         Exception("No path found")
@@ -20,7 +25,11 @@ class AGV:
     # Return the path as a list of points
     return a_star_search(board, start, destination)
   def is_done(self):
-    return self.position == self.final_destination
+
+    is_done = self.position == self.final_destination
+    if is_done:
+      self.status == 0
+    return is_done
   def update(self):
     # Move the AGV along its path
     if self.path:

@@ -1,3 +1,4 @@
+import math
 import pygame
 from collections import defaultdict
 from typing import List
@@ -5,15 +6,43 @@ from boardCenter import board  # Importing the boardCenter module
 from agv import AGV
 from Cell import Cell  # Importing the AGV class
 
+STATUS_LABEL = {
+    0: 'Đang Bắt Đầu',
+    1: 'Đang đến dipot',
+    2: 'Đang đến cửa hàng',
+    3: 'Đang về'
+}
+
+STATUS_COLORS = {
+    0: '#22c55e',
+    1: '#facc15',
+    2: '#e11d48',
+    3: '#2563eb'
+}
+
+STATUS =  {
+    "INSTATION": 0,
+    "GOING_DEPOT": 1,
+    "GOING_STORE": 2,
+    "GOBACK": 3         
+}
+
 INF = 1000000000
 BASE = 3
-
+PI = math.pi
 data = [{
     "station": 0,
+    "color": "#22c55e"
 }, {
     "station": 1,
+    "color": "#22c55e"
 }, {
     "station": 0,
+    "color": "#22c55e"
+},
+ {
+    "station": 1,
+    "color": "#22c55e"
 }]
 class SupervisorCenter:
     def __init__(self):
@@ -41,7 +70,7 @@ class SupervisorCenter:
         for i in range(self.ROW):
             for j in range(self.COL):
                 print(self.grid[i][j].status, end=" ")
-            print()
+            
 
     def initObjects(self):
         self.stations = [[self.ROW - 1, 0],[self.ROW - 1, self.COL - 1]]
@@ -59,10 +88,19 @@ class SupervisorCenter:
 
     def whenMeetInIntersection(self):
         pass
-
-    def checkConflict(self):
+    def calcCircle(self, agv: AGV):
+        return PI * BASE 
+    def checkConflict(self, agv: AGV):
         isConflict = False
-        # paths =
+        if agv.path:
+            for i in range(len(self.AGVs)):
+                if self.AGVs[i].id == agv.id:
+                    continue
+                if self.AGVs[i].path:
+                    if agv.path[:min(len(agv.path), BASE)] in self.AGVs[i].path[0]:
+                        isConflict = True
+                        break
+        return isConflict
 
     def findShortestInMultiRoutes(self, agv: AGV, dest: List[List[int]]):
         minCosts = INF
@@ -84,21 +122,34 @@ class SupervisorCenter:
         # TODO: check conflicts in total AGV
         # for _ in range(BASE):
             # if self.grid[]
+        if agv.position in self.stations:
+            agv.status = STATUS["INSTATION"]
+        if agv.status == 0 and agv.isStart:
+              agv.status = STATUS['GOING_DEPOT']
         if not path:
           isDepot = [x, y] in self.depots
           isStore = [x, y] in self.stores
           print('isDepot: ', isDepot, isStore, self.depots, agv.position)
+
+          if agv.status == 0 and not agv.isStart:
+              agv.status = STATUS['GOING_DEPOT']
           if isDepot:
               self.findShortestInMultiRoutes(agv, self.stores)
               if agv.path == None:
                   return
+              agv.status = STATUS["GOING_STORE"]
           if isStore:
               self.findShortestInMultiRoutes(agv, self.stations)
               if agv.path == None:
                   return
-        self.checkConflict()
+              agv.status = STATUS["GOBACK"]
+        if(not agv.isStart and self.checkConflict()):
+            agv.stop = 1
         self.grid[x][y].agv = None  # remove the AGV from the current cell
         if path:
+            if not agv.isStart and self.grid[path[0][0]] and self.grid[path[0][1]]:
+                agv.stop = 1
+                
             nextPoint = path.pop(0)
             isDepot = nextPoint in self.depots
             isStore = nextPoint in self.stores
@@ -118,21 +169,31 @@ class SupervisorCenter:
           for j in range(self.COL):
             if self.grid[i][j].status == 0:
               pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
-            if self.grid[i][j].status == 2:
-              pygame.draw.circle(self.screen, (0, 0, 0), (j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size // 2), 10)
-            if self.grid[i][j].status == 3:
-              pygame.draw.line(self.screen, (0, 0, 255), (j * self.cell_size + self.cell_size // 2, i * self.cell_size), (j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size), 3)
+            if self.grid[i][j].isStore:
+              pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
+            if self.grid[i][j].isDepot:
+              pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
+            if self.grid[i][j].isChargingStation:
+              pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
+
+            # if self.grid[i][j].agv:
+            #     pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
+            # if self.grid[i][j].status == 2:
+            #   pygame.draw.circle(self.screen, (0, 0, 0), (j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size // 2), 10)
+            # if self.grid[i][j].status == 3:
+            #   pygame.draw.line(self.screen, (0, 0, 255), (j * self.cell_size + self.cell_size // 2, i * self.cell_size), (j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size), 3)
 
     def draw_AGVs(self):
         for agv in self.AGVs:
             x, y = agv.position
-            pygame.draw.rect(self.screen, (255, 0, 0), (y * self.cell_size, x * self.cell_size, self.cell_size, self.cell_size))
+            pygame.draw.rect(self.screen, STATUS_COLORS[agv.status], (y * self.cell_size, x * self.cell_size, self.cell_size, self.cell_size))
     def initAGVs(self):
         print("Init AGVs", data)
         stops = defaultdict(int)
         for i in range(len(data)):
             station = data[i]["station"]
-            agv = AGV(self.grid, self.stations[station], self.stores[station])
+            agv = AGV(self.grid, self.stations[station], self.stores[0])
+            # star together have to wait 3s
             if stops[station]:
                 agv.stop = 3
             stops[station] += 3
@@ -153,7 +214,6 @@ class SupervisorCenter:
           agv.id = i
           self.findShortestInMultiRoutes(agv, self.depots)
           print("Founded Path", agv.path)
-        print("AGVS::", self.AGVs)
         running = True
         counter = 0
         listDone = [False for _ in range(len(self.AGVs))]
@@ -166,10 +226,14 @@ class SupervisorCenter:
                     agv.stop -= 1
                     continue
                 self.move(agv)
-                if agv.is_done():
+                if agv.position in self.stores:
                     listDone[agv.id] = True
                 if all(listDone):
                     running = False
+            label = ''
+            for agv in self.AGVs:
+                print(str(agv.id) + STATUS_LABEL[agv.status])
+            print('Bước ' + str((counter + 1)))
             self.screen.fill((255, 255, 255))  # Clear the screen
             self.draw_grid()  # Redraw grid lines
             self.draw_AGVs()  # Draw AGVs on the grid

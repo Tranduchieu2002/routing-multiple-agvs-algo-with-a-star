@@ -8,8 +8,8 @@ class Cell:
     self.status = STATUS  # 0: Unvisited, 1: Open, 2: Closed, 3: Blocked
     self.agv = None
     self.isChargingStation = False
-    self.isDestination = False
-    self.isSource = False
+    self.isStore = False
+    self.isDepot = False
     self.isObstacle = False
   def __str__(self) -> str:
     return f"Cell: {self.status}"
