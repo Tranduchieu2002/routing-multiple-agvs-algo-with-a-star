@@ -32,14 +32,13 @@ def generate_from_grid(grid):
       
 board: List[List[Cell]] = generate_from_grid(grid= grid)
 
-print(board)
 def generateBoard(size): 
   
   board: List[List[Cell]] = [[0 for _ in range(size)] for _ in range(size)]
   for i in range(size):
     for j in range(size):
-      randomStatus = randint(0, 3)
+      randomStatus = randint(0, 1)
       cell = Cell()
-      cell.status = randomStatus
+      cell.status = 1
       board[i][j] = cell
   return board

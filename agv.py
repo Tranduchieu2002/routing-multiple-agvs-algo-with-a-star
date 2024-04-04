@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from AStar import a_star_search 
 
 
@@ -20,10 +21,10 @@ class AGV:
         Exception("No path found")
     self.position = start
 
-  def find_shortest_path(self, board, start, destination):
+  def find_shortest_path(self, board, start, destination, directions: List[Tuple[int, int]] = [(0, 1), (0, -1), (-1, 0)]):
     # Implement A* algorithm here to find the shortest path
     # Return the path as a list of points
-    return a_star_search(board, start, destination)
+    return a_star_search(board, start, destination, directions)
   def is_done(self):
 
     is_done = self.position == self.final_destination

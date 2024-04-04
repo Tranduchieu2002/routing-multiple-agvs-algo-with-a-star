@@ -13,13 +13,7 @@ def is_unblocked(grid: List[List[Cell]], row: int, col: int):
 
 # Check if a cell is the destination
 def is_destination(row, col, dest):
-    return row == dest[0] and col == dest[1]
-
-# Calculate the heuristic value of a cell (Euclidean distance to destination)
-def calculate_h_value(row, col, dest):
-  row_diff = abs(row - dest[0])
-  col_diff = abs(col - dest[1])
-  return row_diff + col_diff
+    return (row, col) == dest
 
 # Trace the path from source to destination
 def trace_path(cell_details, dest):
@@ -42,28 +36,7 @@ def trace_path(cell_details, dest):
 
     return path
 
-def trace_path(cell_details, dest):
-    path = []
-    row = dest[0]
-    col = dest[1]
-
-    # Trace the path from destination to source using parent cells
-    while not (cell_details[row][col].parent_i == row and cell_details[row][col].parent_j == col):
-        path.append((row, col))
-        temp_row = cell_details[row][col].parent_i
-        temp_col = cell_details[row][col].parent_j
-        row = temp_row
-        col = temp_col
-
-    # Add the source cell to the path
-    path.append((row, col))
-    # Reverse the path to get the path from source to destination
-    path.reverse()
-
-    return path
-
-
-def a_star_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int, int]] = [(0, 1), (0, -1), (-1, 0)]):
+def dijkstra_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int, int]] = [(0, 1), (0, -1), (-1, 0)]):
     ROW = len(grid)
     COL = len(grid[0])
     # Check if the source and destination are valid
@@ -89,9 +62,7 @@ def a_star_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int,
     # Initialize the start cell details
     i = src[0]
     j = src[1]
-    cell_details[i][j].f = 0
     cell_details[i][j].g = 0
-    cell_details[i][j].h = 0
     cell_details[i][j].parent_i = i
     cell_details[i][j].parent_j = j
 
@@ -99,9 +70,9 @@ def a_star_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int,
     open_list = []
     heapq.heappush(open_list, (0.0, i, j))
 
-    # Main loop of A* search algorithm
+    # Main loop of Dijkstra's search algorithm
     while len(open_list) > 0:
-        # Pop the cell with the smallest f value from the open list
+        # Pop the cell with the smallest g value from the open list
         p = heapq.heappop(open_list)
 
         # Mark the cell as visited
@@ -125,32 +96,26 @@ def a_star_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int,
                     path = trace_path(cell_details, dest)
                     return path
                 else:
-                    # Calculate the new f, g, and h values
+                    # Calculate the new g value
                     g_new = cell_details[i][j].g + 1.0
-                    h_new = calculate_h_value(new_i, new_j, dest)
-                    f_new = g_new + h_new
 
-                    # If the cell is not in the open list or the new f value is smaller
-                    if cell_details[new_i][new_j].f == float('inf') or cell_details[new_i][new_j].f > f_new:
+                    # If the cell is not in the open list or the new g value is smaller
+                    if cell_details[new_i][new_j].g == float('inf') or cell_details[new_i][new_j].g > g_new:
                         # Add the cell to the open list
-                        heapq.heappush(open_list, (f_new, new_i, new_j))
+                        heapq.heappush(open_list, (g_new, new_i, new_j))
                         # Update the cell details
-                        cell_details[new_i][new_j].f = f_new
                         cell_details[new_i][new_j].g = g_new
-                        cell_details[new_i][new_j].h = h_new
                         cell_details[new_i][new_j].parent_i = i
                         cell_details[new_i][new_j].parent_j = j
 
     print("Failed to find the destination cell")
     return None
-    # If the destination is not found after visiting all cells
+# Test the Dijkstra's search algorithm
 
-# Test the A* search algorithm
-
-# Define the grid
-# grid = generateBoard(90) 
+# # Define the grid
+# grid = generateBoard(90)
 
 # import time
 # start_time = time.time()
-# a_star_search(grid, (63, 0), (0, 0))
+# dijkstra_search(grid, (63, 0), (0, 0))
 # print("--- %s seconds ---" % (time.time() - start_time))

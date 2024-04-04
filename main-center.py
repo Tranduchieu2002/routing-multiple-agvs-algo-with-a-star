@@ -30,6 +30,8 @@ STATUS =  {
 INF = 1000000000
 BASE = 3
 PI = math.pi
+
+
 data = [{
     "station": 0,
     "color": "#22c55e"
@@ -71,7 +73,6 @@ class SupervisorCenter:
             for j in range(self.COL):
                 print(self.grid[i][j].status, end=" ")
             
-
     def initObjects(self):
         self.stations = [[self.ROW - 1, 0],[self.ROW - 1, self.COL - 1]]
         for station in self.stations:
@@ -105,23 +106,28 @@ class SupervisorCenter:
     def findShortestInMultiRoutes(self, agv: AGV, dest: List[List[int]]):
         minCosts = INF
         minRoute = None
+        agv.final_destination = self.stores[0]
+        finalDestination = agv.final_destination
+        directions = [(0, 1), (0, -1), (-1, 0)]
         for d in dest:
-          route = agv.find_shortest_path(self.grid, agv.position, d)
+          if dest == self.stations:
+              directions =  [(0, 1), (0, -1), (1, 0)]
+          route = agv.find_shortest_path(self.grid, agv.position, d, directions)
           if route == None:
               continue
-          print(route)
           if route != None and len(route) < minCosts:
               minCosts = len(route)
+              finalDestination = d
               minRoute = route
           minCosts = min(minCosts, len(route))
         agv.path = minRoute
+        agv.final_destination = finalDestination
 
     def move(self, agv: AGV):
         path = agv.path
         (x, y) = agv.position
         # TODO: check conflicts in total AGV
-        # for _ in range(BASE):
-            # if self.grid[]
+
         if agv.position in self.stations:
             agv.status = STATUS["INSTATION"]
         if agv.status == 0 and agv.isStart:
@@ -143,7 +149,10 @@ class SupervisorCenter:
               if agv.path == None:
                   return
               agv.status = STATUS["GOBACK"]
-        if(not agv.isStart and self.checkConflict()):
+        # check conflict down here
+        isConflict = not agv.isStart and  self.checkConflict(agv)
+        print('Check conflict :: ', isConflict)
+        if(isConflict):
             agv.stop = 1
         self.grid[x][y].agv = None  # remove the AGV from the current cell
         if path:
@@ -230,9 +239,8 @@ class SupervisorCenter:
                     listDone[agv.id] = True
                 if all(listDone):
                     running = False
-            label = ''
             for agv in self.AGVs:
-                print(str(agv.id) + STATUS_LABEL[agv.status])
+                print('AGV  ' + str(agv.id) + '  ' + STATUS_LABEL[agv.status])
             print('Bước ' + str((counter + 1)))
             self.screen.fill((255, 255, 255))  # Clear the screen
             self.draw_grid()  # Redraw grid lines
