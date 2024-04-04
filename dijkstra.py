@@ -1,9 +1,7 @@
 import heapq
 from typing import List, Tuple
-from boardCenter import board
 from boardCenter import generateBoard
 from Cell import Cell
-
 def is_valid(row, col, ROW, COL):
     return 0 <= row < ROW and 0 <= col < COL
 
@@ -39,8 +37,9 @@ def trace_path(cell_details, dest):
 def dijkstra_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int, int]] = [(0, 1), (0, -1), (-1, 0)]):
     ROW = len(grid)
     COL = len(grid[0])
+
     # Check if the source and destination are valid
-    if not is_valid(src[0], src[1], ROW= ROW, COL= COL) or not is_valid(dest[0], dest[1], ROW= ROW, COL= COL):
+    if not is_valid(src[0], src[1], ROW=ROW, COL=COL) or not is_valid(dest[0], dest[1], ROW=ROW, COL=COL):
         print("Source or destination is invalid")
         return
 
@@ -62,7 +61,13 @@ def dijkstra_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[in
     # Initialize the start cell details
     i = src[0]
     j = src[1]
-    cell_details[i][j].g = 0
+
+    # Initialize all cell g values to infinity
+    for row in range(ROW):
+        for col in range(COL):
+            cell_details[row][col].g = float('inf')
+
+    cell_details[i][j].g = 0  # Set source cell g value to 0
     cell_details[i][j].parent_i = i
     cell_details[i][j].parent_j = j
 
@@ -79,6 +84,7 @@ def dijkstra_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[in
         i = p[1]
         j = p[2]
         closed_list[i][j] = True
+
         # For each direction, check the successors
         for dir in directions:
             new_i = i + dir[0]
@@ -110,9 +116,10 @@ def dijkstra_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[in
 
     print("Failed to find the destination cell")
     return None
+
 # Test the Dijkstra's search algorithm
 
-# # Define the grid
+# Define the grid
 # grid = generateBoard(90)
 
 # import time

@@ -37,8 +37,8 @@ def generateBoard(size):
   board: List[List[Cell]] = [[0 for _ in range(size)] for _ in range(size)]
   for i in range(size):
     for j in range(size):
-      randomStatus = randint(0, 1)
+      randomStatus = 1
       cell = Cell()
-      cell.status = 1
+      cell.status = randomStatus
       board[i][j] = cell
   return board
