@@ -1,4 +1,5 @@
 import math
+import sys
 import pygame
 from collections import defaultdict
 from typing import List
@@ -6,11 +7,16 @@ from boardCenter import board  # Importing the boardCenter module
 from agv import AGV
 from Cell import Cell  # Importing the AGV class
 
+store_image = pygame.image.load("house.png")
+depot_image = pygame.image.load("depot.png")
+charging_station_image = pygame.image.load("station.png")
+rock_image = pygame.image.load("rock.png")
+agv_image = pygame.image.load("agv-robot.png")
 STATUS_LABEL = {
-    0: 'Đang Bắt Đầu',
-    1: 'Đang đến dipot',
-    2: 'Đang đến cửa hàng',
-    3: 'Đang về'
+    0: 'Ready to go',
+    1: 'Going to Depot',
+    2: 'Going to Store',
+    3: 'Go back to Station'
 }
 
 STATUS_COLORS = {
@@ -45,6 +51,10 @@ data = [{
  {
     "station": 1,
     "color": "#22c55e"
+},
+{
+    "station": 1,
+    "color": "#22c55e"
 }]
 class SupervisorCenter:
     def __init__(self):
@@ -53,44 +63,64 @@ class SupervisorCenter:
         self.depots = []
         self.grid: list[list[Cell]] = board  # Accessing the board from boardCenter
         self.AGVs: list[AGV] = []
-        self.screen_width, self.screen_height = 1140, 860
+        self.screen_width, self.screen_height = 840, 860
         self.intersection = []
         self.ROW = len(self.grid)
         self.COL = len(self.grid[0])
-        self.cell_size = 40  # Size of each cell
+        self.cell_size = 50  # Size of each cell
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         self.clock = pygame.time.Clock()
-
-    def initIntersection(self):
-        for i in range(self.ROW):
-            for j in range(self.COL):
-                pass
-                # if self.grid[i][j].status == 2:
-                #   self.intersection.append([i,j])
-
-    def draw_board(self):
-        for i in range(self.ROW):
-            for j in range(self.COL):
-                print(self.grid[i][j].status, end=" ")
+        self.insert_rock_button_rect = pygame.Rect(self.screen_width - 180, 50, 160, 50)  # Define button rectangle
+        pygame.font.init()
+        self.font = pygame.font.Font(None, 24)
+        text = self.font.render("Control Panel", True, (0, 0, 0))
+        text_rect = text.get_rect(center=(self.screen_width - 100, 20))
+        self.screen.blit(text, text_rect)
+    def draw_totalTime(self):
+        pass
             
     def initObjects(self):
         self.stations = [[self.ROW - 1, 0],[self.ROW - 1, self.COL - 1]]
         for station in self.stations:
             self.grid[station[0]][station[1]].status = 1
+            self.grid[station[0]][station[1]].isChargingStation = True
         self.stores = [[0, 0], [0, (self.COL - 1)]]
         for store in self.stores:
+            self.grid[store[0]][store[1]].isStore = True
             self.grid[store[0]][store[1]].status = 1
         self.depots = [[(self.ROW) // 2, 0], [(self.ROW - 1) // 2, self.COL - 1]]
         for depot in self.depots:
+            self.grid[depot[0]][depot[1]].isDepot = True
             self.grid[depot[0]][depot[1]].status = 1
 
     def draw_control(self):
         pass
+    def draw_AGVs(self):
+        # return
+        for agv in self.AGVs:
+            x, y = agv.position
+            # Calculate the coordinates based on cell size and position
+            agv_x = y * (500 // self.COL) + (500 // self.COL - self.cell_size) // 2  # Adjusted x-coordinate
+            agv_y = x * (500 // self.ROW) + (500 // self.ROW - self.cell_size) // 2  # Adjusted y-coordinate
+            draw_agv = pygame.transform.scale(agv_image, (self.cell_size, self.cell_size))
+            self.screen.blit(draw_agv, (agv_x, agv_y))
 
-    def whenMeetInIntersection(self):
-        pass
-    def calcCircle(self, agv: AGV):
-        return PI * BASE 
+            # pygame.draw.rect(self.screen, STATUS_COLORS[agv.status], (agv_x, agv_y, self.cell_size, self.cell_size))
+    def draw_AGV_info(self):
+        # Draw AGV information board
+        board_width = 200
+        board_height = self.screen_height
+        pygame.draw.rect(self.screen, (200, 200, 200), (self.screen_width - board_width, 0, board_width, board_height))
+
+        # Display AGV information
+        text_y = 20
+        for agv in self.AGVs:
+            text = f"AGV {agv.id}: {STATUS_LABEL.get(agv.status, 'Unknown')}"
+            text_render = self.font.render(text, True, (0, 0, 0))
+            text_rect = text_render.get_rect(midleft=(self.screen_width - board_width + 10, text_y))
+            self.screen.blit(text_render, text_rect)
+            text_y += 30
+    
     def checkConflict(self, agv: AGV):
         isConflict = False
         if agv.path:
@@ -102,6 +132,65 @@ class SupervisorCenter:
                         isConflict = True
                         break
         return isConflict
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left mouse button
+                    mouse_pos = pygame.mouse.get_pos()
+                    # Check if mouse click is within the button rectangle
+                    if self.insert_rock_button_rect.collidepoint(mouse_pos):
+                        # Insert rock at mouse position
+                        cell_x = mouse_pos[1] // self.cell_size
+                        cell_y = mouse_pos[0] // self.cell_size
+                        self.grid[cell_x][cell_y].status = 1  # Set cell status to rock (1)
+                        # Redraw the grid with the updated cell status
+                        self.draw_grid()
+                        # Update the display
+                        pygame.display.update()
+    def draw_grid(self):
+        # Define the size of the grid
+        grid_width = 500
+        grid_height = 500
+
+        # Calculate the cell size based on the grid dimensions
+        cell_width = grid_width // self.COL
+        cell_height = grid_height // self.ROW
+
+        # Draw grid lines
+        for i in range(self.ROW + 1):
+            pygame.draw.line(self.screen, (150, 150, 150), (0, i * cell_height), (grid_width, i * cell_height))
+        for j in range(self.COL + 1):
+            pygame.draw.line(self.screen, (150, 150, 150), (j * cell_width, 0), (j * cell_width, grid_height))
+
+        # Draw cells
+        for i in range(self.ROW):
+            for j in range(self.COL):
+                cell = self.grid[i][j]
+                image = None  # Default no image
+                if cell.isStore:
+                    image = store_image  # Store
+                elif cell.isDepot:
+                    image = depot_image  # Depot
+                elif cell.isChargingStation:
+                    image = charging_station_image  # Charging Station
+                elif cell.status == 0:
+                    image = rock_image
+                    
+                # Draw the image
+                if image:
+                    # Resize image to fit cell size
+                    image = pygame.transform.scale(image, (cell_width, cell_height))
+                    self.screen.blit(image, (j * cell_width, i * cell_height))    
+
+        # Add text to buttons
+        font = pygame.font.Font(None, 24)
+        text = font.render("Insert Rock", True, (255, 255, 255))
+        text_rect = text.get_rect(center=self.insert_rock_button_rect.center)
+        self.screen.blit(text, text_rect)
+    
 
     def findShortestInMultiRoutes(self, agv: AGV, dest: List[List[int]]):
         minCosts = INF
@@ -122,7 +211,6 @@ class SupervisorCenter:
           minCosts = min(minCosts, len(route))
         agv.path = minRoute
         agv.final_destination = finalDestination
-
     def move(self, agv: AGV):
         path = agv.path
         (x, y) = agv.position
@@ -168,34 +256,7 @@ class SupervisorCenter:
                 self.findShortestInMultiRoutes(agv, self.stations)
             self.grid[nextPoint[0]][nextPoint[1]].AGV = agv
             agv.position = nextPoint
-    def draw_grid(self):
-        # Draw grid lines
-        for i in range(self.ROW + 1):
-            pygame.draw.line(self.screen, (0, 0, 0), (0, i * self.cell_size), (self.screen_width, i * self.cell_size))
-        for j in range(self.COL + 1):
-            pygame.draw.line(self.screen, (0, 0, 0), (j * self.cell_size, 0), (j * self.cell_size, self.screen_height))
-        for i in range(self.ROW):
-          for j in range(self.COL):
-            if self.grid[i][j].status == 0:
-              pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
-            if self.grid[i][j].isStore:
-              pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
-            if self.grid[i][j].isDepot:
-              pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
-            if self.grid[i][j].isChargingStation:
-              pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
-
-            # if self.grid[i][j].agv:
-            #     pygame.draw.rect(self.screen, (0, 0, 0), (j * self.cell_size, i * self.cell_size, self.cell_size, self.cell_size))
-            # if self.grid[i][j].status == 2:
-            #   pygame.draw.circle(self.screen, (0, 0, 0), (j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size // 2), 10)
-            # if self.grid[i][j].status == 3:
-            #   pygame.draw.line(self.screen, (0, 0, 255), (j * self.cell_size + self.cell_size // 2, i * self.cell_size), (j * self.cell_size + self.cell_size // 2, i * self.cell_size + self.cell_size), 3)
-
-    def draw_AGVs(self):
-        for agv in self.AGVs:
-            x, y = agv.position
-            pygame.draw.rect(self.screen, STATUS_COLORS[agv.status], (y * self.cell_size, x * self.cell_size, self.cell_size, self.cell_size))
+        
     def initAGVs(self):
         print("Init AGVs", data)
         stops = defaultdict(int)
@@ -208,7 +269,6 @@ class SupervisorCenter:
             stops[station] += 3
             agv.stop = stops.get(station, 0)
             self.AGVs.append(agv)
-            
     def start(self):
         print("Starting the Supervisor Center")
         self.initObjects()
@@ -245,6 +305,8 @@ class SupervisorCenter:
             self.screen.fill((255, 255, 255))  # Clear the screen
             self.draw_grid()  # Redraw grid lines
             self.draw_AGVs()  # Draw AGVs on the grid
+            self.draw_control()
+            self.draw_AGV_info()
             pygame.display.flip()  # Update the display
             pygame.time.delay(500) 
             self.clock.tick(60)  # Cap the frame rate to 60 FPS

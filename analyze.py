@@ -9,7 +9,7 @@ def get_memory_usage():
     return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # Convert to MB
 
 def analyze_algorithms():
-    input_sizes = [10, 100, 300, 500, 700]
+    input_sizes = [10, 100, 300, 700, 1000]
     a_star_time_avg = []
     a_star_steps_avg = []
     a_star_memory_avg = []
@@ -65,7 +65,7 @@ def analyze_algorithms():
     plot_statistics(a_star_memory_avg, dijkstra_memory_avg, 'Memory')
 
 def plot_statistics(a_star_values, dijkstra_values, title):
-    input_sizes = [10, 100, 300, 500, 700]
+    input_sizes = [10, 100, 300, 700, 1000]
     plt.figure(figsize=(8, 5))
     plt.plot(input_sizes, a_star_values, label='A* Search', marker='o')
     plt.plot(input_sizes, dijkstra_values, label="Dijkstra's Algorithm", marker='o')

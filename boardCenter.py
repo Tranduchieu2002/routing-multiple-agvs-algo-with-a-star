@@ -5,7 +5,7 @@
 
 # Path: board-center.py
 from typing import List
-from random import randint
+from random import random
 from Cell import Cell
 
 
@@ -37,8 +37,12 @@ def generateBoard(size):
   board: List[List[Cell]] = [[0 for _ in range(size)] for _ in range(size)]
   for i in range(size):
     for j in range(size):
-      randomStatus = 1
+      randomStatus = random()
       cell = Cell()
-      cell.status = randomStatus
+      if randomStatus < 0.2:
+        cell.status = 0
+      else:
+        cell.status = 1
+      
       board[i][j] = cell
   return board

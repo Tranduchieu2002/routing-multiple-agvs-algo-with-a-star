@@ -120,9 +120,9 @@ def dijkstra_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[in
 # Test the Dijkstra's search algorithm
 
 # Define the grid
-# grid = generateBoard(90)
+grid = generateBoard(90)
 
-# import time
-# start_time = time.time()
-# dijkstra_search(grid, (63, 0), (0, 0))
-# print("--- %s seconds ---" % (time.time() - start_time))
+import time
+start_time = time.time()
+dijkstra_search(grid, (63, 0), (0, 0))
+print("--- %s seconds ---" % (time.time() - start_time))
