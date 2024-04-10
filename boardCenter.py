@@ -39,7 +39,7 @@ def generateBoard(size):
     for j in range(size):
       randomStatus = random()
       cell = Cell()
-      if randomStatus < 0.2:
+      if randomStatus < 0.1:
         cell.status = 0
       else:
         cell.status = 1

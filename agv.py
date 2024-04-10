@@ -11,8 +11,9 @@ class AGV:
     self.destination: list[int] = destination
     self.color = (255,100,150)
     self.final_destination: list[int] = destination
-    self.path = []
-    self.status:int= 0 # 
+    self.path: list = []
+    self.status: int= 0 # 
+    self.energy: int = 0
     self.isStart = True
     self.isFinished = False
     self.isVisited = set()

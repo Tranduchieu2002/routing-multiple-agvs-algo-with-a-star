@@ -33,54 +33,8 @@ def trace_path(cell_details, dest):
     path.reverse()
 
     return path
-def alt_heuristic(row, col, dest, landmarks):
-    return min(manhattan_distance(row, col, landmark[0], landmark[1]) + 
-               manhattan_distance(dest[0], dest[1], landmark[0], landmark[1])
-               for landmark in landmarks)
-def manhattan_distance(x1, y1, x2, y2):
-    return abs(x1 - x2) + abs(y1 - y2)
-def a_star_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int, int]] = [(0, 1), (0, -1), (-1, 0)]):
-    ROW = len(grid)
-    COL = len(grid[0])
-    
-    # Split the grid into four parts
-    mid_row = ROW // 2
-    mid_col = COL // 2
-    top_left_grid = [row[:mid_col] for row in grid[:mid_row]]
-    top_right_grid = [row[mid_col:] for row in grid[:mid_row]]
-    bottom_left_grid = [row[:mid_col] for row in grid[mid_row:]]
-    bottom_right_grid = [row[mid_col:] for row in grid[mid_row:]]
-    
-    # Define the four parts' coordinates
-    top_left_src = src
-    top_right_src = (src[0], src[1] - mid_col)
-    bottom_left_src = (src[0] - mid_row, src[1])
-    bottom_right_src = (src[0] - mid_row, src[1] - mid_col)
-    
-    # Search each part individually
-    path = a_star_search_helper(top_left_grid, top_left_src, dest, directions)
-    if path is not None:
-        return path
-    
-    path = a_star_search_helper(top_right_grid, top_right_src, dest, directions)
-    if path is not None:
-        return path
-    
-    path = a_star_search_helper(bottom_left_grid, bottom_left_src, dest, directions)
-    if path is not None:
-        return path
-    
-    path = a_star_search_helper(bottom_right_grid, bottom_right_src, dest, directions)
-    if path is not None:
-        return path
-    
-    # If not found in any part, perform a global search
-    return a_star_search_helper(grid, src, dest, directions)
 
-def a_star_search_helper(grid, src, dest, directions):
-    # Define landmarks
-    landmarks = [(0, 0), (0, len(grid[0]) - 1), (len(grid) - 1, 0), (len(grid) - 1, len(grid[0]) - 1)]
-    
+def un_optimize_a_star_search(grid: List[List[Cell]], src, dest, directions: List[Tuple[int, int]] = [(0, 1), (0, -1), (-1, 0)]):
     ROW = len(grid)
     COL = len(grid[0])
 
@@ -130,7 +84,7 @@ def a_star_search_helper(grid, src, dest, directions):
                     return path
                 else:
                     g_new = cell_details[i][j].g + 1.0
-                    h_new = alt_heuristic(new_i, new_j, dest, landmarks)  # Use ALT heuristic
+                    h_new = calculate_h_value(new_i, new_j, dest)
                     f_new = g_new + h_new
 
                     if cell_details[new_i][new_j].f == float('inf') or cell_details[new_i][new_j].f > f_new:
@@ -143,12 +97,6 @@ def a_star_search_helper(grid, src, dest, directions):
 
     print("Failed to find the destination cell")
     return None
-# Test the A* search algorithm
-grid = generateBoard(90) 
-import time
-start_time = time.time()
-a_star_search(grid, (63, 0), (0, 0))
-print("--- %s seconds ---" % (time.time() - start_time))
 
 # # Test the A* search algorithm
 # grid = generateBoard(90) 
