@@ -16,9 +16,9 @@ grid = [
   [0, 0, 1, 0, 1, 0, 0, 1, 0, 1],
   [1, 1, 1, 0, 1, 1, 1, 1, 1, 0],
   [1, 0, 1, 1, 1, 1, 0, 1, 0, 0],
-  [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 0, 0, 0, 1, 0, 0, 1]
+  [0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
 ]
 def generate_from_grid(grid):
     board = []
@@ -39,7 +39,7 @@ def generateBoard(size):
     for j in range(size):
       randomStatus = random()
       cell = Cell()
-      if randomStatus < 0.1:
+      if randomStatus < 0.2:
         cell.status = 0
       else:
         cell.status = 1
